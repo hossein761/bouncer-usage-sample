@@ -6,8 +6,11 @@ import play.mvc.*;
 
 import views.html.*;
 
-@BouncerSecuredAction
 public class Application extends Controller {
+
+	public static Result login() {
+		return ok(login.render());
+	}
 
     @BouncerSecuredAction
     public static Result index() {
