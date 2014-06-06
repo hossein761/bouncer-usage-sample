@@ -6,7 +6,7 @@
 		
 	<script type="text/javascript">
 
-		var accessToken = getCookie('Access-Token');
+		var accessToken = getAccessTokeFromCookie('Access-Token');
 		if (accessToken.length > 1){
 			console.log("starting app");
 			//window.authToken = accessToken;
@@ -45,7 +45,7 @@
 							url: atRequest,
 							dataType: "json",
 							success: function(response, status, xhr){
-								var accessToken = xhr.getResponseHeader('X-ACCESS-TOKEN');
+								accessToken = xhr.getResponseHeader('X-ACCESS-TOKEN');
 								startApp();
 								
 							},
@@ -91,7 +91,7 @@
 		}
 		
 	
-		function getCookie(name){
+		function getAccessTokeFromCookie(name){
 			var value = "; " + document.cookie;
 			var parts = value.split("; "+ name + "=");
 			if(parts.length == 2)
