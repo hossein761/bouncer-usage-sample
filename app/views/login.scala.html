@@ -1,77 +1,90 @@
 <html>
-	<body>
-		<head>
+	<head>
 		<script src="@routes.Assets.at("javascripts/jquery.js")" type="text/javascript"></script>
-		</head>
-		<div>
-			<form id="login-form">
-				Username/Email: <input type="text" name="emailOrUserName"><br>
-				Password	  :<input type="text" name="password"><br>
-				<input type="submit" value="Login" id="login-button">
-			</form>
-	</div>
-	
-	<div>
-		<a href="assets/signup.html">Register</a>
-	</div>
+	</head>
+	<body>
+		
 	<script type="text/javascript">
-	
-	/*document.cookie.split('; ').forEach(function(cookieString){
-		console.log(cookieString);
-		var cookie = cookieString.split("=");
-		if(cookie[0] === 'Access-Token' && cookie[1].length > 1){
-			console.log(cookie[1]);
-		}
-	});*/
-	
-	console.log(getCookie('Access-Token'));
-	
-	function getCookie(name){
-		var value = "; " + document.cookie;
-		var parts = value.split("; "+ name + "=");
-		if(parts.length == 2)
-			return parts.pop.split(";").shift();
-	}
-	
-	$("#login-form").submit(function(event){
-		event.preventDefault();
-		var $form = $(this);
-		var emailOrUserName = $form.find("input[name='emailOrUserName']").val();
-		console.log(emailOrUserName);
-		var password = $form.find("input[name='password']").val();
-		console.log(password);
 
-		$.ajax({
-			type: "POST",
-			url: "/auth/login",
-			data:{emailOrUserName:emailOrUserName, 
-				  password:password},
-			success:function(authCode){
-				var atRequest = "/auth/accessToken?authCode="+authCode; 
+		var accessToken = getCookie('Access-Token');
+		if (accessToken.length > 1){
+			console.log("starting app");
+			window.authToken = accessToken;
+			startApp();
+			
+		}else{
+			console.log("showing login form");
+			displayLoginForm();
+		}
+		
+		
+		
+		function displayLoginForm(){
+			$("body").empty();
+			var loginForm = $("<form>").attr("id", "login-form");
+			loginForm.append($("<input>").attr("type","text").attr("id","emailOrUserName").attr("name","emailOrUserName").attr("placeholder","Email/Username"));
+			loginForm.append($("<br>"));
+			loginForm.append($("<input>").attr("type","text").attr("id","password").attr("name","password").attr("placeholder","password"));
+			loginForm.append($("<br>"));
+			loginForm.append($("<input>").attr("type","submit").val("Login"));
+			loginForm.submit(function(event){
+				event.preventDefault();
+				var emailOrUserName = $("#emailOrUserName").val();
+				var password = $("#password").val();
+				
+	
 				$.ajax({
-					type: "GET",
-					url: atRequest,
-					dataType: "json",
-					success: function(response, status, xhr){
-						console.log(response);
-						var accessToken = xhr.getResponseHeader('X-ACCESS-TOKEN');
-						if(accessToken){
-							window.location = '/';
-						}
-						
+					type: "POST",
+					url: "/auth/login",
+					data:{emailOrUserName:emailOrUserName, 
+						  password:password},
+					success:function(authCode){
+						var atRequest = "/auth/accessToken?authCode="+authCode; 
+						$.ajax({
+							type: "GET",
+							url: atRequest,
+							dataType: "json",
+							success: function(response, status, xhr){
+								var accessToken = xhr.getResponseHeader('X-ACCESS-TOKEN');
+								startApp();
+								
+							},
+							error: function(response){
+								
+							}
+						});
 					},
 					error: function(response){
+						console.log(response);
 						
 					}
 				});
-			},
-			error: function(response){
-				console.log(response);
 				
-			}
-		});
+			});
+			$("body").append(loginForm);
+			var signupLink = $("<a>").attr("href","assets/signup.html").text("Register");
+			$("body").append(signupLink);
+		}
 		
-	});
+		function startApp(){
+			var welcome = "<h1>You have been logged in!</h1>";
+			$("body").append(welcome);
+			$("body").append($("<a>").attr("href","assets/logout.html").text("Logout"));
+			//TODO: complete
+		}
+		
+	
+		function getCookie(name){
+			var value = "; " + document.cookie;
+			var parts = value.split("; "+ name + "=");
+			if(parts.length == 2)
+				var cookieJson = jQuery.parseJSON(JSON.parse(parts.pop().split(";").shift()));
+				if(cookieJson != undefined){
+					return cookieJson.token;	
+				}
+				return '';
+		}
+		
 	</script>
 	
 	</body>
