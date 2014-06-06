@@ -9,7 +9,7 @@
 		var accessToken = getCookie('Access-Token');
 		if (accessToken.length > 1){
 			console.log("starting app");
-			window.authToken = accessToken;
+			//window.authToken = accessToken;
 			startApp();
 			
 		}else{
@@ -67,9 +67,26 @@
 		}
 		
 		function startApp(){
+			$("body").empty();
 			var welcome = "<h1>You have been logged in!</h1>";
 			$("body").append(welcome);
-			$("body").append($("<a>").attr("href","assets/logout.html").text("Logout"));
+			var logout = $("<button>").text("Logout").click(function(){
+				$.ajax({
+					url:"/auth/logout",
+					type: "GET",
+					headers: {'X-ACCESS-TOKEN': accessToken},
+					beforeSend: function(request){
+					},
+					success: function(response){
+						$("body").empty();
+						displayLoginForm();
+					},
+					error: function(response){
+						console.log(response);
+					}
+				});
+			});
+			$("body").append(logout);
 			//TODO: complete
 		}
 		
